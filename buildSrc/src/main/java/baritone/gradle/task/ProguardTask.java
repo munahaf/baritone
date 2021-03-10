@@ -42,6 +42,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -151,7 +152,14 @@ public class ProguardTask extends BaritoneGradleTask {
         final String javaHomeEnv = System.getenv("JAVA_HOME");
         if (javaHomeEnv != null) {
 
-            String path = Jvm.forHome(new File(javaHomeEnv)).getJavaExecutable().getAbsolutePath();
+            javaHomeEnv = Paths.get(javaHomeEnv).normalize().toString();
+			
+			/* ********OpenRefactory Warning********
+			 	Possible Path manipulation attack!
+			Fix:
+				iCR sanitizes the tainted input.
+			*/
+			String path = Jvm.forHome(new File(javaHomeEnv)).getJavaExecutable().getAbsolutePath();
             if (this.validateJavaVersion(path)) {
                 System.out.println("Detected Java path by JAVA_HOME");
                 return path;
